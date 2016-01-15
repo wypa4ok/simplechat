@@ -17,6 +17,12 @@
                 $scope.messages = $firebaseArray(ref);
                 // add new items to the array
                 // the message is automatically added to our Firebase database!
+                try{
+                    $scope.google = ref.getAuth().google;
+                }catch(err){
+                    console.log(err);
+                }
+                    
                 $scope.addMessage = function() {
                     var sSender = "none";
                     try{
@@ -35,7 +41,7 @@
                     var auth = $firebaseAuth(ref);
                     auth.$authWithOAuthPopup(provider, scope).then(function(authData) {
                         $scope.google = authData.google;
-                        console.log("Logged in as:", authData.google);
+                        console.log("Logged in as:", authData);
                     }, function (error) {
                         // Handle error
                         console.log(error);
