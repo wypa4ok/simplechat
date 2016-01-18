@@ -41,7 +41,7 @@
                     auth.$authWithOAuthRedirect(provider, scope);                    
                 };
                 $scope.logout = function(){
-                    $scope.google = null;
+                    $scope.auth = null;
                     ref.unauth();
                 }
                 // click on `index.html` above to see $remove() and $save() in action
