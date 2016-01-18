@@ -17,12 +17,15 @@
                 $scope.messages = $firebaseArray(ref);
                 // add new items to the array
                 // the message is automatically added to our Firebase database!
-                try{
-                    $scope.google = ref.getAuth().google;
-                }catch(err){
-                    console.log(err);
-                }
-                    
+                $scope.google = null;
+                ref.onAuth(function(authData) {
+                    if (authData) {
+                        console.log("Authenticated with uid:", authData.uid);
+                        $scope.google = authData.google;
+                    } else {
+                        console.log("Client unauthenticated.")
+                    }
+                });
                 $scope.addMessage = function() {
                     var sSender = "none";
                     try{
@@ -34,19 +37,17 @@
                         text: $scope.newMessageText,
                         sender: sSender
                     });
+                    $scope.newMessageText = "";
                 };
                 $scope.login =function() {
                     var provider = 'google';
                     var scope = {scope:'email'};
                     var auth = $firebaseAuth(ref);
-                    auth.$authWithOAuthPopup(provider, scope).then(function(authData) {
-                        $scope.google = authData.google;
-                        console.log("Logged in as:", authData);
-                    }, function (error) {
-                        // Handle error
-                        console.log(error);
-                    });
-                    
+                    auth.$authWithOAuthRedirect(provider, scope);                    
+                };
+                $scope.logout = function(){
+                    $scope.google = null;
+                    ref.unauth();
                 }
                 // click on `index.html` above to see $remove() and $save() in action
             });            
@@ -54,10 +55,15 @@
     </head>
     <body>
         <div ng-app="myApp" ng-controller="myCtrl">
-            <div ng-repeat="(n, message) in messages track by n">{{message.sender}}:{{message.text}}</div>
-            <form><p>Message : <input type="text" ng-model="newMessageText"></p>
+            <form ng-hide="google != null">
+                <p>This is a chat program that uses firebase as the back end. Click the login button to verify your user name with google and send messages.</p>
+                <button ng-hide="google!=null" type = "submit" ng-click="login()">Login</button>
+            </form>
+            <form ng-hide="google==null">
+                <div ng-repeat="(n, message) in messages track by n">{{message.sender}}:{{message.text}}</div>
+                <p ng-hide="google==null">Message : <input type="text" ng-model="newMessageText"></p>
                 <button type = "submit" ng-click="addMessage()">Send</button>
-                <button ng-click="login()">Login</button>
+                <button ng-click="logout()">Logout</button>
             </form>
         </div>
 
