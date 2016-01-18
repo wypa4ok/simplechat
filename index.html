@@ -21,21 +21,16 @@
                 ref.onAuth(function(authData) {
                     if (authData) {
                         console.log("Authenticated with uid:", authData.uid);
-                        $scope.google = authData.google;
+                        $scope.auth = authData;
                     } else {
                         console.log("Client unauthenticated.")
                     }
                 });
                 $scope.addMessage = function() {
-                    var sSender = "none";
-                    try{
-                        sSender = $scope.google.displayName;
-                    }catch(err){
-                        console.log(err);
-                    }
                     $scope.messages.$add({
                         text: $scope.newMessageText,
-                        sender: sSender
+                        sender: $scope.auth.google.displayName,
+                        uid:$scope.auth.uid
                     });
                     $scope.newMessageText = "";
                 };
@@ -55,13 +50,13 @@
     </head>
     <body>
         <div ng-app="myApp" ng-controller="myCtrl">
-            <form ng-hide="google != null">
+            <form ng-hide="auth != null">
                 <p>This is a chat program that uses firebase as the back end. Click the login button to verify your user name with google and send messages.</p>
                 <button ng-hide="google!=null" type = "submit" ng-click="login()">Login</button>
             </form>
-            <form ng-hide="google==null">
+            <form ng-hide="auth==null">
                 <div ng-repeat="(n, message) in messages track by n">{{message.sender}}:{{message.text}}</div>
-                <p ng-hide="google==null">Message : <input type="text" ng-model="newMessageText"></p>
+                <p >Message : <input type="text" ng-model="newMessageText"></p>
                 <button type = "submit" ng-click="addMessage()">Send</button>
                 <button ng-click="logout()">Logout</button>
             </form>
